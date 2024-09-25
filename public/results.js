@@ -1,76 +1,89 @@
-// Initialize Firebase (replace with your own config)
-const firebaseConfig = {
-    // Your Firebase configuration object
-};
-firebase.initializeApp(firebaseConfig);
+document.addEventListener('DOMContentLoaded', function() {
+    const db = firebase.firestore();
+    let currentPhrase = '';
 
-const db = firebase.firestore();
-let currentPhrase = '';
-
-function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-}
-
-async function checkKino() {
-    const phrase = getQueryParam('q');
-    if (!phrase) return;
-
-    currentPhrase = phrase.toLowerCase();
-    document.getElementById('phrase').textContent = `Phrase: "${phrase}"`;
-
-    const docRef = db.collection('phrases').doc(currentPhrase);
-    const doc = await docRef.get();
-
-    if (doc.exists) {
-        showResults(doc.data());
-    } else {
-        showVoting()
-    }
-}
-
-function showVoting() {
-    document.getElementById('voting').style.display = 'block';
-    document.getElementById('results').innerHTML = '';
-}
-
-async function vote(isKino) {
-    if (!currentPhrase) return;
-
-    const docRef = db.collection('phrases').doc(currentPhrase);
-
-    // Check if the user has already voted
-    if (localStorage.getItem(`voted_${currentPhrase}`)) {
-      alert("You've already voted for this phrase!");
-      return;
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
     }
 
-    await docRef.set({
-        phrase: currentPhrase,
-        kinoVotes: firebase.firestore.FieldValue.increment(isKino ? 1 : 0),
-        notKinoVotes: firebase.firestore.FieldValue.increment(isKino ? 0 : 1),
-    }, { merge: true });
+    async function checkKino() {
+        const phrase = getQueryParam('q');
+        if (!phrase) return;
 
-    // Mark as voted in localStorage
-    localStorage.setItem(`voted_${currentPhrase}`, 'true');
+        currentPhrase = phrase.toLowerCase();
+        const phraseElement = document.getElementById('phrase');
+        if (phraseElement) {
+            phraseElement.textContent = `Expression: "${phrase}"`;
+        }
 
-    const updatedDoc = await docRef.get();
-    showResults(updatedDoc.data());
-}
+        const docRef = db.collection('phrases').doc(currentPhrase);
+        try {
+            console.log('Attempting to get document');
+            const doc = await docRef.get();
+            console.log('Document retrieved:', doc);
+            if (doc.exists) {
+                showResults(doc.data());
+            } else {
+                showVoting();
+            }
+        } catch (error) {
+            console.error("Error getting document:", error);
+            console.error("Error details:", error.code, error.message);
+        }
+    }
 
-function showResults(data) {
-    const totalVotes = data.kinoVotes + data.notKinoVotes;
-    const kinoPercentage = (data.kinoVotes / totalVotes * 100).toFixed(2);
-    const notKinoPercentage = (data.notKinoVotes / totalVotes * 100).toFixed(2);
+    function showVoting() {
+        const votingElement = document.getElementById('voting');
+        const resultsElement = document.getElementById('results');
+        if (votingElement) votingElement.style.display = 'block';
+        if (resultsElement) resultsElement.innerHTML = '';
+    }
 
-    document.getElementById('voting').style.display = 'none';
-    document.getElementById('results').innerHTML = `
-        <h2>Results for "${data.phrase}"</h2>
-        <p>Kino: ${data.kinoVotes} votes (${kinoPercentage}%)</p>
-        <p>Not Kino: ${data.notKinoVotes} votes (${notKinoPercentage}%)</p>
-        <p>Total votes: ${totalVotes}</p>
-    `;
-}
+    window.vote = async function(isKino) {
+        if (!currentPhrase) return;
 
-// Check for a phrase in the URL when the page loads
-window.onload = checkKino;
+        const docRef = db.collection('phrases').doc(currentPhrase);
+
+        if (localStorage.getItem(`voted_${currentPhrase}`)) {
+            alert("You've already voted for this expression!");
+            return;
+        }
+
+        try {
+            await docRef.set({
+                phrase: currentPhrase,
+                kinoVotes: firebase.firestore.FieldValue.increment(isKino ? 1 : 0),
+                notKinoVotes: firebase.firestore.FieldValue.increment(isKino ? 0 : 1),
+            }, { merge: true });
+
+            localStorage.setItem(`voted_${currentPhrase}`, 'true');
+
+            const updatedDoc = await docRef.get();
+            showResults(updatedDoc.data());
+        } catch (error) {
+            console.error("Error voting:", error);
+        }
+    }
+
+    function showResults(data) {
+        const totalVotes = data.kinoVotes + data.notKinoVotes;
+        const kinoPercentage = (data.kinoVotes / totalVotes * 100).toFixed(2);
+        const notKinoPercentage = (data.notKinoVotes / totalVotes * 100).toFixed(2);
+
+        const votingElement = document.getElementById('voting');
+        const resultsElement = document.getElementById('results');
+        
+        if (votingElement) votingElement.style.display = 'none';
+        if (resultsElement) {
+            resultsElement.innerHTML = `
+                <h2>Results for "${data.phrase}"</h2>
+                <p>Kino: ${data.kinoVotes} votes (${kinoPercentage}%)</p>
+                <p>Not Kino: ${data.notKinoVotes} votes (${notKinoPercentage}%)</p>
+                <p>Total votes: ${totalVotes}</p>
+            `;
+        }
+    }
+
+    checkKino();
+});

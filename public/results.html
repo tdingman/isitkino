@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Is It Kino? - Results</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Update Firebase scripts to match index.html -->
+    <script defer src="/__/firebase/10.13.2/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/10.13.2/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
         button { font-size: 16px; padding: 5px 10px; }
@@ -15,7 +17,7 @@
 <body>
     <h1>Is It Kino?</h1>
     <div id="phrase"></div>
-    <div id="voting">
+    <div id="voting" style="display: none;">
         <h2>Is this kino?</h2>
         <button onclick="vote(true)">Yes</button>
         <button onclick="vote(false)">No</button>
@@ -23,5 +25,17 @@
     <div id="results"></div>
 
     <script src="/results.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check if Firebase is initialized correctly
+        if (firebase.apps.length) {
+          console.log('Firebase is initialized');
+          const db = firebase.firestore();
+          console.log('Firestore is available');
+        } else {
+          console.error('Firebase is not initialized');
+        }
+      });
+    </script>
 </body>
 </html>

@@ -12,7 +12,11 @@
     ],
     "rewrites": [
       {
-        "source": "/",
+        "source": "/results",
+        "destination": "/results.html"
+      },
+      {
+        "source": "**",
         "destination": "/index.html"
       }
     ]
