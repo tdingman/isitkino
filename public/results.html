@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is It Kino? - Results</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        button { font-size: 16px; padding: 5px 10px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Is It Kino?</h1>
+    <div id="phrase"></div>
+    <div id="voting">
+        <h2>Is this kino?</h2>
+        <button onclick="vote(true)">Yes</button>
+        <button onclick="vote(false)">No</button>
+    </div>
+    <div id="results"></div>
+
+    <script src="/results.js"></script>
+</body>
+</html>
