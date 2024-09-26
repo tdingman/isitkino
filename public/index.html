@@ -1,26 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Is It Kino?</title>
-    <style>
-      body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-      input, button { font-size: 16px; padding: 5px 10px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <!-- Add Firebase SDK -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+      
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAj3WMy6VOHXIN5eITqsG50jL8dJVOEQFc",
+        authDomain: "is-it-kino.firebaseapp.com",
+        projectId: "is-it-kino",
+        storageBucket: "is-it-kino.appspot.com",
+        messagingSenderId: "478162951946",
+        appId: "1:478162951946:web:ec0104e9de3a639b44a4f3",
+        measurementId: "G-7ZBZHCZ7YE"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
   </head>
   <body>
-    <h1>Is It Kino?</h1>
-    <form id="searchForm">
-        <input type="text" name="q" placeholder="Enter an expression" required>
-        <button type="submit">Check</button>
-    </form>
+    <div class="container">
+      <header>
+        <h1>Is It Kino?</h1>
+      </header>
+      <main>
+        <form id="searchForm" class="search-form">
+            <input type="text" name="q" placeholder="Enter an expression" required>
+            <button type="submit">Check</button>
+        </form>
+      </main>
+      <footer>
+        <p>&copy; 2024 That's My Business Inc. All rights reserved.</p>
+      </footer>
+    </div>
 
     <script>
       document.getElementById('searchForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const query = this.elements.q.value;
-        window.location.href = `/results?q=${encodeURIComponent(query)}`;
+        const expression = this.elements.q.value.toLowerCase().trim();
+        window.location.href = `/results?q=${encodeURIComponent(expression)}`;
       });
     </script>
   </body>

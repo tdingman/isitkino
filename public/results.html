@@ -4,38 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Is It Kino? - Results</title>
-    <!-- Update Firebase scripts to match index.html -->
-    <script defer src="/__/firebase/10.13.2/firebase-app-compat.js"></script>
-    <script defer src="/__/firebase/10.13.2/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        button { font-size: 16px; padding: 5px 10px; }
-        #results { margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <!-- Add Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj3WMy6VOHXIN5eITqsG50jL8dJVOEQFc",
+            authDomain: "is-it-kino.firebaseapp.com",
+            projectId: "is-it-kino",
+            storageBucket: "is-it-kino.appspot.com",
+            messagingSenderId: "478162951946",
+            appId: "1:478162951946:web:ec0104e9de3a639b44a4f3",
+            measurementId: "G-7ZBZHCZ7YE"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Add this block for emulator configuration
+        if (location.hostname === "localhost") {
+            // Point to the Firestore emulator running on localhost.
+            db.useEmulator("localhost", 8080);
+        }
+
+        // Make db available globally
+        window.db = db;
+    </script>
 </head>
 <body>
-    <h1>Is It Kino?</h1>
-    <div id="phrase"></div>
-    <div id="voting" style="display: none;">
-        <h2>Is this kino?</h2>
-        <button onclick="vote(true)">Yes</button>
-        <button onclick="vote(false)">No</button>
+    <div class="container">
+        <header>
+            <h1 id="dynamicHeader">Is It Kino?</h1>
+        </header>
+        <main>
+            <div id="expression" class="expression"></div>
+            <div id="voting" class="voting" style="display: none;">
+                <button onclick="vote(true)" class="btn btn-yes">Yes</button>
+                <button onclick="vote(false)" class="btn btn-no">No</button>
+            </div>
+            <div id="results" class="results"></div>
+        </main>
+        <footer>
+            <p>&copy; 2024 That's My Business Inc. All rights reserved.</p>
+        </footer>
     </div>
-    <div id="results"></div>
 
-    <script src="/results.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Check if Firebase is initialized correctly
-        if (firebase.apps.length) {
-          console.log('Firebase is initialized');
-          const db = firebase.firestore();
-          console.log('Firestore is available');
-        } else {
-          console.error('Firebase is not initialized');
-        }
-      });
-    </script>
+    <script type="module" src="results.js"></script>
 </body>
 </html>

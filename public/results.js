@@ -1,35 +1,51 @@
+import { doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
 document.addEventListener('DOMContentLoaded', function() {
-    const db = firebase.firestore();
-    let currentPhrase = '';
+    let currentExpression = '';
 
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
     }
 
-    async function checkKino() {
-        const phrase = getQueryParam('q');
-        if (!phrase) return;
-
-        currentPhrase = phrase.toLowerCase();
-        const phraseElement = document.getElementById('phrase');
-        if (phraseElement) {
-            phraseElement.textContent = `Expression: "${phrase}"`;
+    function updateHeader(expression) {
+        const headerElement = document.getElementById('dynamicHeader');
+        if (headerElement) {
+            const titleCaseExpression = expression
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+            headerElement.textContent = `Is ${titleCaseExpression} Kino?`;
         }
+    }
 
-        const docRef = db.collection('phrases').doc(currentPhrase);
+    async function checkKino() {
+        const expression = getQueryParam('q');
+        if (!expression) return;
+
+        currentExpression = expression.toLowerCase().trim();
+
+        // Call updateHeader here with the original expression
+        updateHeader(expression);
+
+        const docRef = doc(window.db, 'expressions', currentExpression);
         try {
             console.log('Attempting to get document');
-            const doc = await docRef.get();
-            console.log('Document retrieved:', doc);
-            if (doc.exists) {
-                showResults(doc.data());
+            const docSnap = await getDoc(docRef);
+            console.log('Document retrieved:', docSnap);
+            if (docSnap.exists()) {
+                showResults(docSnap.data());
             } else {
                 showVoting();
             }
         } catch (error) {
             console.error("Error getting document:", error);
-            console.error("Error details:", error.code, error.message);
+            if (error.code === 'failed-precondition' || error.code === 'unimplemented') {
+                console.error("The Firestore emulator is not running. Please start it with 'firebase emulators:start'");
+                showError("Firestore emulator is not running. Please start it and try again.");
+            } else {
+                showError("An error occurred. Please try again later.");
+            }
         }
     }
 
@@ -41,35 +57,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.vote = async function(isKino) {
-        if (!currentPhrase) return;
+        if (!currentExpression) return;
 
-        const docRef = db.collection('phrases').doc(currentPhrase);
+        const docRef = doc(window.db, 'expressions', currentExpression);
 
-        if (localStorage.getItem(`voted_${currentPhrase}`)) {
-            alert("You've already voted for this expression!");
+        if (localStorage.getItem(`voted_${currentExpression}`)) {
+            showError("You've already voted for this expression!");
             return;
         }
 
         try {
-            await docRef.set({
-                phrase: currentPhrase,
-                kinoVotes: firebase.firestore.FieldValue.increment(isKino ? 1 : 0),
-                notKinoVotes: firebase.firestore.FieldValue.increment(isKino ? 0 : 1),
+            await setDoc(docRef, {
+                expression: currentExpression, // Store the lowercase version
+                kinoVotes: increment(isKino ? 1 : 0),
+                notKinoVotes: increment(isKino ? 0 : 1),
             }, { merge: true });
 
-            localStorage.setItem(`voted_${currentPhrase}`, 'true');
+            localStorage.setItem(`voted_${currentExpression}`, 'true');
 
-            const updatedDoc = await docRef.get();
-            showResults(updatedDoc.data());
+            const updatedDocSnap = await getDoc(docRef);
+            if (updatedDocSnap.exists()) {
+                showResults(updatedDocSnap.data());
+            } else {
+                showError("An error occurred while retrieving updated results.");
+            }
         } catch (error) {
             console.error("Error voting:", error);
+            showError("An error occurred while voting. Please try again later.");
         }
     }
 
     function showResults(data) {
         const totalVotes = data.kinoVotes + data.notKinoVotes;
-        const kinoPercentage = (data.kinoVotes / totalVotes * 100).toFixed(2);
-        const notKinoPercentage = (data.notKinoVotes / totalVotes * 100).toFixed(2);
+        const kinoPercentage = Math.round((data.kinoVotes / totalVotes) * 100);
+        const notKinoPercentage = 100 - kinoPercentage;
+
+        const isKino = kinoPercentage >= 50;
+        const verdict = isKino ? 'Yes' : 'No';
+        const verdictColor = isKino ? '#2ecc71' : '#e74c3c';
 
         const votingElement = document.getElementById('voting');
         const resultsElement = document.getElementById('results');
@@ -77,11 +102,24 @@ document.addEventListener('DOMContentLoaded', function() {
         if (votingElement) votingElement.style.display = 'none';
         if (resultsElement) {
             resultsElement.innerHTML = `
-                <h2>Results for "${data.phrase}"</h2>
-                <p>Kino: ${data.kinoVotes} votes (${kinoPercentage}%)</p>
-                <p>Not Kino: ${data.notKinoVotes} votes (${notKinoPercentage}%)</p>
-                <p>Total votes: ${totalVotes}</p>
+                <h2 style="color: ${verdictColor}; font-size: 2.5em; text-align: center;">${verdict}</h2>
+                <div class="bar-visualization" style="background: linear-gradient(to right, #2ecc71 ${kinoPercentage}%, #e74c3c ${kinoPercentage}%); height: 30px; margin: 20px 0;"></div>
+                <p><strong>Kino:</strong> ${data.kinoVotes} votes (${kinoPercentage}%)</p>
+                <p><strong>Not Kino:</strong> ${data.notKinoVotes} votes (${notKinoPercentage}%)</p>
+                <p><strong>Total votes:</strong> ${totalVotes}</p>
             `;
+        }
+        
+        // Add this line to ensure the results are visible
+        if (resultsElement) resultsElement.style.display = 'block';
+    }
+
+    function showError(message) {
+        const votingElement = document.getElementById('voting');
+        const resultsElement = document.getElementById('results');
+        if (votingElement) votingElement.style.display = 'none';
+        if (resultsElement) {
+            resultsElement.innerHTML = `<p class="error">${message}</p>`;
         }
     }
 
