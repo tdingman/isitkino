@@ -92,9 +92,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const kinoPercentage = Math.round((data.kinoVotes / totalVotes) * 100);
         const notKinoPercentage = 100 - kinoPercentage;
 
-        const isKino = kinoPercentage >= 50;
-        const verdict = isKino ? 'Yes' : 'No';
-        const verdictColor = isKino ? '#2ecc71' : '#e74c3c';
+        let verdict, verdictColor;
+        if (data.kinoVotes === data.notKinoVotes) {
+            verdict = 'Maybe';
+            verdictColor = '#808080'; // Grey color for tie
+        } else {
+            const isKino = kinoPercentage > 50;
+            verdict = isKino ? 'Yes' : 'No';
+            verdictColor = isKino ? '#2ecc71' : '#e74c3c';
+        }
 
         const votingElement = document.getElementById('voting');
         const resultsElement = document.getElementById('results');
@@ -112,6 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add this line to ensure the results are visible
         if (resultsElement) resultsElement.style.display = 'block';
+
+        const returnToIndexElement = document.getElementById('returnToIndex');
+        if (returnToIndexElement) returnToIndexElement.style.display = 'block';
     }
 
     function showError(message) {

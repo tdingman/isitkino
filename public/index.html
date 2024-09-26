@@ -37,18 +37,14 @@
             <input type="text" name="q" placeholder="Enter an expression" required>
             <button type="submit">Check</button>
         </form>
+        <div id="toggleVotes">Show My Votes</div>
+        <div id="myVotes"></div>
       </main>
       <footer>
         <p>&copy; 2024 That's My Business Inc. All rights reserved.</p>
       </footer>
     </div>
 
-    <script>
-      document.getElementById('searchForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const expression = this.elements.q.value.toLowerCase().trim();
-        window.location.href = `/results?q=${encodeURIComponent(expression)}`;
-      });
-    </script>
+    <script src="index.js"></script>
   </body>
 </html>
