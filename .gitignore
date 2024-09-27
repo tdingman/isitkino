@@ -42,3 +42,7 @@ serviceAccountKey.json
 # Cache directories
 .cache/
 .npm/
+
+# Functions specific
+functions/node_modules/
+functions/.runtimeconfig.json

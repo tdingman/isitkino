@@ -3,6 +3,10 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  },
   "hosting": {
     "public": "public",
     "ignore": [
@@ -12,12 +16,27 @@
     ],
     "rewrites": [
       {
+        "source": "/api/leaderboard",
+        "function": "leaderboard"
+      },
+      {
         "source": "/results",
         "destination": "/results.html"
       },
       {
         "source": "**",
         "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Deploy-Time",
+            "value": "${FIREBASE_CONFIG}"
+          }
+        ]
       }
     ]
   }

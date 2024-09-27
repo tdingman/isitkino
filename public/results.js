@@ -11,12 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateHeader(expression) {
         const headerElement = document.getElementById('dynamicHeader');
         if (headerElement) {
-            const titleCaseExpression = expression
-                .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(' ');
+            const titleCaseExpression = toTitleCase(expression);
             headerElement.textContent = `Is ${titleCaseExpression} Kino?`;
+            // Update page title
+            document.title = `Is It Kino? - ${titleCaseExpression}`;
         }
+    }
+
+    function toTitleCase(str) {
+        return str.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
     }
 
     async function checkKino() {
@@ -25,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         currentExpression = expression.toLowerCase().trim();
 
-        // Call updateHeader here with the original expression
         updateHeader(expression);
 
         const docRef = doc(window.db, 'expressions', currentExpression);
@@ -33,8 +37,14 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Attempting to get document');
             const docSnap = await getDoc(docRef);
             console.log('Document retrieved:', docSnap);
+            
             if (docSnap.exists()) {
-                showResults(docSnap.data());
+                // Check if the user has already voted
+                if (localStorage.getItem(`voted_${currentExpression}`)) {
+                    showResults(docSnap.data());
+                } else {
+                    showVoting();
+                }
             } else {
                 showVoting();
             }
