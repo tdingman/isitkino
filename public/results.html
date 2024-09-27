@@ -7,20 +7,18 @@
     <link rel="stylesheet" href="style.css">
     <!-- Add Firebase SDK -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
         
-        // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAj3WMy6VOHXIN5eITqsG50jL8dJVOEQFc",
-            authDomain: "is-it-kino.firebaseapp.com",
-            projectId: "is-it-kino",
-            storageBucket: "is-it-kino.appspot.com",
-            messagingSenderId: "478162951946",
-            appId: "1:478162951946:web:ec0104e9de3a639b44a4f3",
-            measurementId: "G-7ZBZHCZ7YE"
+          apiKey: '__FIREBASE_API_KEY__',
+          authDomain: '__FIREBASE_AUTH_DOMAIN__',
+          projectId: '__FIREBASE_PROJECT_ID__',
+          storageBucket: '__FIREBASE_STORAGE_BUCKET__',
+          messagingSenderId: '__FIREBASE_MESSAGING_SENDER_ID__',
+          appId: '__FIREBASE_APP_ID__',
+          measurementId: '__FIREBASE_MEASUREMENT_ID__'
         };
 
         // Initialize Firebase
