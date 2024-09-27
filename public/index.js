@@ -73,7 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return `
           <div class="leaderboard-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="flex: 1;">${index + 1}. ${toTitleCase(item.expression)}</span>
+            <a href="/results?q=${encodeURIComponent(item.expression)}" style="flex: 1;">
+              ${index + 1}. ${toTitleCase(item.expression)}
+            </a>
             <div style="display: flex; flex-direction: column; align-items: center; width: 100px;">
               <span style="color: ${verdictColor}; margin-bottom: 2px;">${verdict}</span>
               <div class="bar-visualization" style="width: 100%; background: linear-gradient(to right, #2ecc71 ${kinoPercentage}%, #e74c3c ${kinoPercentage}%); height: 10px;"></div>
